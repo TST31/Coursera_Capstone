@@ -1,0 +1,5 @@
+EXTF;510;21;Buchungsstapel;7;;;;;;;;;;;;;;;;;;;;;;20260331;143022;;;;;;;;;;
+Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schlüssel);BU-Schlüssel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;KOST1;KOST2;Beleginfo - Art 1;Beleginfo - Inhalt 1
+245,80;S;EUR;;;;3400;1600;9;1503;BEL-20260315;;;Hagebaumarkt GmbH;;;Lieferant;Hagebaumarkt GmbH
+78,40;S;EUR;;;;4670;1600;9;1803;BEL-20260318;;;Shell Tankstelle;;;Lieferant;Shell Tankstelle
+134,20;S;EUR;;;;3400;1600;9;2203;BEL-20260322;;;Würth GmbH & Co. KG;;;Lieferant;Würth GmbH & Co. KG

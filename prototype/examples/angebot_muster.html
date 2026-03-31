@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Muster-Angebot – Mustermann SHK GmbH</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1f2937; background: #fff; padding: 48px; max-width: 840px; margin: 0 auto; font-size: 13px; line-height: 1.5; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+  .logo { font-size: 22px; font-weight: 700; color: #1d4ed8; }
+  .betrieb-info { font-size: 11px; color: #6b7280; margin-top: 4px; }
+  .badge { background: #1d4ed8; color: white; padding: 6px 18px; border-radius: 4px; font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+  .meta { text-align: right; font-size: 12px; color: #6b7280; margin-top: 6px; }
+  hr { border: none; border-top: 2px solid #1d4ed8; margin: 24px 0; }
+  .zwei-spalten { display: flex; justify-content: space-between; margin-bottom: 32px; }
+  .box { background: #f9fafb; border-radius: 6px; padding: 14px 18px; min-width: 220px; }
+  .box-label { font-size: 10px; text-transform: uppercase; color: #9ca3af; letter-spacing: 1px; margin-bottom: 4px; }
+  .box-content { font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  thead tr { background: #1d4ed8; color: white; }
+  th { padding: 10px 12px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 9px 12px; border-bottom: 1px solid #f3f4f6; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  .r { text-align: right; }
+  .totals { margin-top: 16px; display: flex; justify-content: flex-end; }
+  .totals-table { min-width: 280px; }
+  .totals-table td { border: none; padding: 4px 12px; }
+  .totals-table td:first-child { color: #6b7280; }
+  .totals-table td:last-child { text-align: right; font-weight: 500; }
+  .total-final { font-size: 16px; font-weight: 700; color: #1d4ed8; border-top: 2px solid #1d4ed8; }
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; display: flex; justify-content: space-between; }
+  .hinweis { background: #eff6ff; border-left: 3px solid #1d4ed8; padding: 12px 16px; margin-top: 24px; font-size: 12px; color: #1e40af; border-radius: 0 4px 4px 0; }
+  @media print { body { padding: 20px; } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="logo">Mustermann SHK GmbH</div>
+      <div class="betrieb-info">Hauptstraße 12, 80331 München<br>089 1234567 · info@mustermann-shk.de · www.mustermann-shk.de<br>Steuernummer: 123/456/78901 · IBAN: DE12 3456 7890 1234 5678 90</div>
+    </div>
+    <div>
+      <div class="badge">ANGEBOT</div>
+      <div class="meta">
+        Nr. ANB-2026-042<br>
+        Datum: 31.03.2026<br>
+        Gültig bis: 30.04.2026
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="zwei-spalten">
+    <div class="box">
+      <div class="box-label">Angebot für</div>
+      <div class="box-content">Familie Weber</div>
+      <div style="color:#6b7280; font-size:12px; margin-top:4px">Rosenweg 5<br>80333 München</div>
+    </div>
+    <div class="box">
+      <div class="box-label">Betreff</div>
+      <div class="box-content">Badsanierung mit Duschumrüstung</div>
+      <div style="color:#6b7280; font-size:12px; margin-top:4px">Badezimmer EG, ca. 8 m²</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:40px">Pos.</th>
+        <th>Beschreibung</th>
+        <th class="r" style="width:80px">Menge</th>
+        <th class="r" style="width:80px">Einheit</th>
+        <th class="r" style="width:110px">Einzelpreis</th>
+        <th class="r" style="width:110px">Gesamt</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>Demontage Badewanne</strong><br><span style="color:#6b7280;font-size:11px">Ausbau inkl. Entsorgungs­pauschale, Schutzmaßnahmen</span></td>
+        <td class="r">4</td>
+        <td class="r">Std.</td>
+        <td class="r">88,00 €</td>
+        <td class="r">352,00 €</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>Bodengleiche Dusche 120×80 cm</strong><br><span style="color:#6b7280;font-size:11px">Duschwanne, Ablauf, Wandanschluss, inkl. Material</span></td>
+        <td class="r">1</td>
+        <td class="r">Stk.</td>
+        <td class="r">680,00 €</td>
+        <td class="r">680,00 €</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>Armatur Thermostat-Dusche</strong><br><span style="color:#6b7280;font-size:11px">Hansgrohe Ecostat, inkl. Regenbrause + Handbrause</span></td>
+        <td class="r">1</td>
+        <td class="r">Stk.</td>
+        <td class="r">420,00 €</td>
+        <td class="r">420,00 €</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>Waschbecken mit Unterschrank</strong><br><span style="color:#6b7280;font-size:11px">Keramik-WT 60 cm inkl. Siphon, Absperrhahn, Montage</span></td>
+        <td class="r">1</td>
+        <td class="r">Stk.</td>
+        <td class="r">385,00 €</td>
+        <td class="r">385,00 €</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>Handtuchheizkörper</strong><br><span style="color:#6b7280;font-size:11px">Kermi Credo 60×120 cm, Chrom, inkl. Thermostatventil</span></td>
+        <td class="r">1</td>
+        <td class="r">Stk.</td>
+        <td class="r">310,00 €</td>
+        <td class="r">310,00 €</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>Installations- und Montagearbeiten</strong><br><span style="color:#6b7280;font-size:11px">Verrohrung, Abdichtung, Druckprüfung, Inbetriebnahme</span></td>
+        <td class="r">8</td>
+        <td class="r">Std.</td>
+        <td class="r">92,00 €</td>
+        <td class="r">736,00 €</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><strong>Fliesenarbeiten Wand & Boden</strong><br><span style="color:#6b7280;font-size:11px">ca. 15 m², inkl. Fliesenlieferung (Sortiment nach Wahl)</span></td>
+        <td class="r">15</td>
+        <td class="r">m²</td>
+        <td class="r">68,00 €</td>
+        <td class="r">1.020,00 €</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <table class="totals-table">
+      <tr><td>Zwischensumme (netto)</td><td>3.903,00 €</td></tr>
+      <tr><td>MwSt. 19 %</td><td>741,57 €</td></tr>
+      <tr class="total-final">
+        <td style="padding-top:8px">Gesamtbetrag (brutto)</td>
+        <td style="padding-top:8px">4.644,57 €</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="hinweis">
+    <strong>Zahlungsbedingungen:</strong> 50 % Anzahlung bei Auftragserteilung, Restzahlung 14 Tage nach Fertigstellung ohne Abzug.<br>
+    <br>
+    Dieses Angebot basiert auf einer Vor-Ort-Besichtigung. Eventuelle Mehrkosten durch unvorhergesehene Leitungsführungen werden nach Aufmaß abgerechnet. Auf Wunsch führen wir gerne eine kostenlose Besichtigung durch.
+  </div>
+
+  <div class="footer">
+    <span>Mustermann SHK GmbH · Hauptstraße 12, 80331 München</span>
+    <span>HRB 123456 · USt-IdNr. DE123456789</span>
+  </div>
+</body>
+</html>
