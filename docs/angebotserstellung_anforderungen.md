@@ -85,7 +85,7 @@ Ein Betrieb kann **ein oder mehrere Gewerke** aktivieren. Pro aktiviertem Gewerk
 | Benutzer (Name, E-Mail, Rolle) | Ja (min. 1) | Liste |
 | Rolle | Ja | Enum: Admin / Monteur / Büro |
 | Monteur darf Angebote erstellen? | Ja | Bool (pro Rolle) |
-| Monteur sieht Kalkulation / Marge? | Ja | Bool (pro Rolle) |
+| Kalkulation / Marge sichtbar? | Ja | Bool (pro Rolle) – Standard: Nein, freischaltbar |
 
 ---
 
@@ -269,18 +269,27 @@ Betriebsprofil          Kundendatenbank
                   ↓
          ┌────────┴────────┐
          ↓                 ↓
-    Interne            Kundenangebot
-    Kalkulation        (PDF per E-Mail)
-    (Stundensätze,          ↓
-     Marge sichtbar)   Digitale Annahme
-                       durch Kunden
+    Interne            Kundenangebot (PDF)
+    Kalkulation             ↓
+    (rollenabhängig    ┌────┴────┐
+     sichtbar)         ↓        ↓
+                  E-Mail mit  Unterschrift
+                  Bestät.-    auf Tablet
+                  Link        vor Ort
 ```
 
 ---
 
-## 7. Offene Fragen / nächste Schritte
+## 7. Entscheidungen & offene Punkte
 
-- [ ] Kalkulationslogik: Wie werden Arbeitsstunden aus den Maßen geschätzt? (Richtwerte pro Gewerk hinterlegen)
-- [ ] Mehrbenutzer: Welche Rollen sollen die Kalkulation / Marge sehen dürfen?
-- [ ] Anbindung Buchhaltung / CRM vorhanden oder geplant?
-- [ ] Digitale Angebotsannahme: E-Mail mit Link oder direkt auf Tablet unterschreiben?
+### Entschieden
+
+| Thema | Entscheidung |
+|---|---|
+| Rollen & Datenzugriff | Kalkulation / Marge ist **nicht per Default sichtbar**, aber pro Rolle freischaltbar (voller Zugang möglich). Konfiguration im Betriebsprofil. |
+| Digitale Angebotsannahme | **Beides:** (a) E-Mail mit Bestätigungslink an den Kunden, (b) direkte Unterschrift auf dem Tablet vor Ort. |
+
+### Zur späteren Detaillierung
+
+- **Kalkulationslogik:** Wie werden Arbeitsstunden aus Maßen und Auftragsart abgeleitet? (Richtwerte / Zeitansätze pro Gewerk – eigenes Konzept erforderlich)
+- **Anbindung Buchhaltung / CRM:** Ob und welche Fremdsysteme angebunden werden sollen, ist noch offen.
