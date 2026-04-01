@@ -2,358 +2,401 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Craftspeople AI – Prozess-Flowcharts</title>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        themeVariables: {
-          primaryColor: '#1d4ed8',
-          primaryTextColor: '#ffffff',
-          primaryBorderColor: '#1e40af',
-          lineColor: '#6b7280',
-          secondaryColor: '#eff6ff',
-          tertiaryColor: '#f9fafb',
-          fontSize: '14px'
-        }
-      });
-      mermaid.run({ querySelector: '.mermaid' });
-    });
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Craftspeople AI – Prozessübersicht</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f8fafc; color: #1f2937; }
-    header { background: #1d4ed8; color: white; padding: 28px 48px; }
-    header h1 { font-size: 22px; font-weight: 700; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1f2937; font-size: 15px; line-height: 1.6; }
+    header { background: #1d4ed8; color: white; padding: 24px 20px; }
+    header h1 { font-size: 20px; font-weight: 700; }
     header p { font-size: 13px; color: #93c5fd; margin-top: 4px; }
-    nav { display: flex; gap: 8px; padding: 20px 48px; background: white; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
-    nav a { font-size: 13px; font-weight: 500; color: #4b5563; text-decoration: none; padding: 6px 14px; border-radius: 6px; border: 1px solid #e5e7eb; }
-    nav a:hover { border-color: #1d4ed8; color: #1d4ed8; }
-    main { max-width: 1100px; margin: 0 auto; padding: 40px 48px; }
-    section { margin-bottom: 60px; scroll-margin-top: 80px; }
-    h2 { font-size: 18px; font-weight: 700; color: #1d4ed8; margin-bottom: 6px; }
-    .subtitle { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
-    .chart-wrap { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 32px; overflow-x: auto; }
-    .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 16px; font-size: 12px; color: #6b7280; }
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .dot { width: 12px; height: 12px; border-radius: 2px; }
-    .dot-blue { background: #1d4ed8; }
-    .dot-green { background: #16a34a; }
-    .dot-amber { background: #d97706; }
-    .dot-gray { background: #9ca3af; }
-    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
-    .metric { background: #eff6ff; border-radius: 8px; padding: 14px 16px; }
-    .metric-val { font-size: 22px; font-weight: 700; color: #1d4ed8; }
-    .metric-label { font-size: 11px; color: #6b7280; margin-top: 2px; }
+    nav { display: flex; overflow-x: auto; gap: 8px; padding: 14px 20px; background: white; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+    nav a { font-size: 13px; font-weight: 500; color: #4b5563; text-decoration: none; padding: 6px 12px; border-radius: 20px; border: 1px solid #e5e7eb; flex-shrink: 0; }
+    nav a:hover, nav a:active { background: #eff6ff; border-color: #1d4ed8; color: #1d4ed8; }
+    main { max-width: 680px; margin: 0 auto; padding: 24px 20px 60px; }
+    section { margin-bottom: 48px; scroll-margin-top: 70px; }
+    h2 { font-size: 18px; font-weight: 700; color: #1d4ed8; margin-bottom: 4px; }
+    .section-sub { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+    .flow { background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+    .step { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid #f3f4f6; align-items: flex-start; }
+    .step:last-child { border-bottom: none; }
+    .step-icon { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; margin-top: 1px; }
+    .step-body { flex: 1; }
+    .step-title { font-weight: 600; font-size: 14px; color: #111827; }
+    .step-desc { font-size: 13px; color: #6b7280; margin-top: 2px; }
+    .step-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-top: 4px; }
+    .badge-ai { background: #dbeafe; color: #1d4ed8; }
+    .badge-manual { background: #f3f4f6; color: #6b7280; }
+    .badge-auto { background: #dcfce7; color: #166534; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .arrow { text-align: center; color: #9ca3af; font-size: 18px; padding: 2px 0; border-bottom: 1px solid #f3f4f6; }
+    .branch { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 10px 14px; margin: 0 16px 12px; border-radius: 0 6px 6px 0; font-size: 13px; }
+    .branch strong { color: #92400e; display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .result { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin: 12px 16px 16px; }
+    .result-label { font-size: 11px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .result-text { font-size: 14px; color: #166534; font-weight: 500; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+    .metric { background: #eff6ff; border-radius: 10px; padding: 14px; }
+    .metric-val { font-size: 22px; font-weight: 700; color: #1d4ed8; line-height: 1.1; }
+    .metric-label { font-size: 11px; color: #6b7280; margin-top: 3px; }
+    .divider { height: 1px; background: #e5e7eb; margin: 32px 0; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .compare-box { border-radius: 10px; padding: 14px; }
+    .compare-old { background: #fff7f0; border: 1px solid #fed7aa; }
+    .compare-new { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .compare-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .compare-old .compare-label { color: #c2410c; }
+    .compare-new .compare-label { color: #166534; }
+    .compare-item { font-size: 12px; color: #374151; padding: 3px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .compare-item:last-child { border-bottom: none; }
+    .tag { display: inline-block; background: #1d4ed8; color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-right: 6px; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Craftspeople AI – Prozess-Flowcharts</h1>
-  <p>Übersicht aller drei MVP-Kernprozesse + Gesamtüberblick</p>
+  <h1>Craftspeople AI</h1>
+  <p>Prozessübersicht – alle 3 MVP-Kernprozesse</p>
 </header>
 
 <nav>
-  <a href="#uebersicht">Gesamtüberblick</a>
-  <a href="#angebot">A1 – Angebotserstellung</a>
-  <a href="#kommunikation">B1 – Kundenkommunikation</a>
-  <a href="#datev">C1/C2 – DATEV Export</a>
+  <a href="#uebersicht">Gesamtablauf</a>
+  <a href="#angebot">A1 Angebot</a>
+  <a href="#kommunikation">B1 Kommunikation</a>
+  <a href="#datev">C1/C2 DATEV</a>
 </nav>
 
 <main>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════ GESAMTÜBERBLICK ═══════ -->
   <section id="uebersicht">
-    <h2>Gesamtüberblick – Handwerker-Tagesablauf mit AI</h2>
-    <p class="subtitle">Von der Kundenanfrage bis zur Buchhaltungsübergabe – alle Berührungspunkte des Systems</p>
-    <div class="chart-wrap">
-      <div class="mermaid">
-flowchart TD
-    A([👤 Kunde nimmt Kontakt auf\nTelefon · E-Mail · WhatsApp]) --> B
+    <h2>Gesamtablauf</h2>
+    <p class="section-sub">Von der Kundenanfrage bis zur Buchhaltungsübergabe</p>
 
-    B{{"💬 B1\nKundenkommunikation AI"}}
-    B --> C[AI entwirft professionelle Antwort\nin 30 Sekunden]
-    C --> D[Handwerker prüft & sendet]
-
-    D --> E{Termin vereinbart?}
-    E -- Nein --> F([Kein Auftrag])
-    E -- Ja --> G[Vor-Ort-Besichtigung /\nAufnahme per Sprachnotiz]
-
-    G --> H{{"📄 A1\nAngebotserstellung AI"}}
-    H --> I[AI generiert Angebot\nmit Positionen & Preisen]
-    I --> J[Handwerker prüft & sendet PDF]
-
-    J --> K{Auftrag erteilt?}
-    K -- Nein --> L([Kein Auftrag])
-    K -- Ja --> M[Auftrag durchführen]
-
-    M --> N[Materialien einkaufen\nBelege sammeln]
-    N --> O{{"🧾 C1/C2\nBelegerfassung & DATEV"}}
-    O --> P[Belege fotografieren\nAI kategorisiert automatisch]
-    P --> Q[DATEV CSV Export\nmit einem Klick]
-
-    M --> R[Auftrag abgeschlossen]
-    R --> S[A2: Rechnung aus Angebot\n1-Klick Umwandlung]
-    S --> T[Rechnung an Kunde]
-
-    Q --> U[CSV an Steuerberater]
-    U --> V([✅ Buchhaltung erledigt])
-    T --> W{Zahlung eingegangen?}
-    W -- Nein --> X[C4: Automatische Mahnung]
-    X --> W
-    W -- Ja --> Y([✅ Auftrag abgeschlossen])
-
-    style A fill:#eff6ff,stroke:#1d4ed8,color:#1e40af
-    style B fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style H fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style O fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style F fill:#fee2e2,stroke:#ef4444,color:#991b1b
-    style L fill:#fee2e2,stroke:#ef4444,color:#991b1b
-    style Y fill:#dcfce7,stroke:#16a34a,color:#166534
-    style V fill:#dcfce7,stroke:#16a34a,color:#166534
+    <div class="flow">
+      <div class="step">
+        <div class="step-icon">👤</div>
+        <div class="step-body">
+          <div class="step-title">Kunde nimmt Kontakt auf</div>
+          <div class="step-desc">Telefon · E-Mail · WhatsApp</div>
+          <span class="step-badge badge-manual">Eingehend</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">💬</div>
+        <div class="step-body">
+          <div class="step-title">B1 – Kundenkommunikation AI</div>
+          <div class="step-desc">AI entwirft professionelle Antwort in 30 Sek. Handwerker prüft kurz & sendet.</div>
+          <span class="step-badge badge-ai">AI-gestützt</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">🏠</div>
+        <div class="step-body">
+          <div class="step-title">Termin & Besichtigung</div>
+          <div class="step-desc">Vor-Ort-Aufnahme, ggf. Sprachnotiz für Angebot</div>
+          <span class="step-badge badge-manual">Manuell</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">📄</div>
+        <div class="step-body">
+          <div class="step-title">A1 – Angebotserstellung AI</div>
+          <div class="step-desc">Jobbeschreibung eingeben → AI generiert Positionen & Preise → PDF versenden</div>
+          <span class="step-badge badge-ai">AI-gestützt</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">🔨</div>
+        <div class="step-body">
+          <div class="step-title">Auftrag durchführen</div>
+          <div class="step-desc">Materialien kaufen, Belege sammeln</div>
+          <span class="step-badge badge-manual">Manuell</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">🧾</div>
+        <div class="step-body">
+          <div class="step-title">C1/C2 – Belegerfassung & DATEV</div>
+          <div class="step-desc">Belege fotografieren → AI kategorisiert → CSV an Steuerberater</div>
+          <span class="step-badge badge-ai">AI-gestützt</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">💰</div>
+        <div class="step-body">
+          <div class="step-title">Rechnung & Zahlung</div>
+          <div class="step-desc">A2: Angebot → Rechnung per 1-Klick. Bei Verzug: automatische Mahnung (C4)</div>
+          <span class="step-badge badge-auto">Automatisiert</span>
+        </div>
       </div>
     </div>
-    <div class="legend">
-      <div class="legend-item"><div class="dot dot-blue"></div> AI-gestützte Prozessschritte</div>
-      <div class="legend-item"><div class="dot dot-green"></div> Erfolgreiches Ergebnis</div>
-      <div class="legend-item"><div class="dot dot-amber"></div> Manuelle Entscheidung</div>
+
+    <div class="result">
+      <div class="result-label">Ergebnis</div>
+      <div class="result-text">Kompletter Auftragszyklus – AI übernimmt alle Schreibarbeiten</div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="divider"></div>
+
+  <!-- ═══════ A1 ANGEBOT ═══════ -->
   <section id="angebot">
-    <h2>A1 – AI-Angebotserstellung</h2>
-    <p class="subtitle">Vom mündlichen Auftragsgespräch zum versandfertigen PDF-Angebot</p>
-    <div class="chart-wrap">
-      <div class="mermaid">
-flowchart LR
-    A([Start:\nJob besprochen]) --> B
+    <h2><span class="tag">A1</span> Angebotserstellung</h2>
+    <p class="section-sub">Vom Gespräch zum versandfertigen PDF-Angebot</p>
 
-    subgraph VORHER ["❌ Bisheriger Prozess (ohne AI)  ~30–45 min"]
-        direction LR
-        B1[Notizen entziffern] --> B2[Excel / Word öffnen]
-        B2 --> B3[Positionen manuell eingeben]
-        B3 --> B4[Preise nachschlagen]
-        B4 --> B5[Formatieren & Layout]
-        B5 --> B6[PDF exportieren & senden]
-    end
+    <div class="compare">
+      <div class="compare-box compare-old">
+        <div class="compare-label">❌ Ohne AI (~35 min)</div>
+        <div class="compare-item">Notizen entziffern</div>
+        <div class="compare-item">Excel / Word öffnen</div>
+        <div class="compare-item">Positionen eintippen</div>
+        <div class="compare-item">Preise nachschlagen</div>
+        <div class="compare-item">Formatieren & Layout</div>
+        <div class="compare-item">PDF exportieren & senden</div>
+      </div>
+      <div class="compare-box compare-new">
+        <div class="compare-label">✅ Mit AI (~3 min)</div>
+        <div class="compare-item">App öffnen</div>
+        <div class="compare-item">Job beschreiben</div>
+        <div class="compare-item">AI generiert Positionen</div>
+        <div class="compare-item">Kurz prüfen</div>
+        <div class="compare-item">PDF senden</div>
+      </div>
+    </div>
 
-    subgraph NACHHER ["✅ Mit Craftspeople AI  ~2–3 min"]
-        direction LR
-        C1[App öffnen] --> C2[Jobbeschreibung eintippen\noder diktieren]
-        C2 --> C3[Claude API:\nPositionen generieren\nPreise kalkulieren]
-        C3 --> C4[Vorschau prüfen\n30 Sek.]
-        C4 --> C5{Änderungen\nnötig?}
-        C5 -- Ja --> C6[Position anpassen]
-        C6 --> C4
-        C5 -- Nein --> C7[PDF senden]
-    end
-
-    A --> B1
-    A --> C1
-
-    C7 --> Z([✅ Angebot beim Kunden])
-    B6 --> Z
-
-    style VORHER fill:#fff7f0,stroke:#f97316
-    style NACHHER fill:#f0fdf4,stroke:#16a34a
-    style C3 fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style Z fill:#dcfce7,stroke:#16a34a,color:#166534
+    <div class="flow">
+      <div class="step">
+        <div class="step-icon">🗣️</div>
+        <div class="step-body">
+          <div class="step-title">Jobbeschreibung eingeben</div>
+          <div class="step-desc">Freitext oder Spracheingabe – z.B. "Bad sanieren, Wanne raus, Dusche einbauen, 15m² fliesen"</div>
+          <span class="step-badge badge-manual">Handwerker</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">🤖</div>
+        <div class="step-body">
+          <div class="step-title">Claude API verarbeitet</div>
+          <div class="step-desc">Erkennt Gewerk, generiert 4–6 Positionen mit realistischen Mengen, Einheiten und SHK-Stundensätzen (~88–95 €/Std.)</div>
+          <span class="step-badge badge-ai">Claude API</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">👁️</div>
+        <div class="step-body">
+          <div class="step-title">Vorschau prüfen</div>
+          <div class="step-desc">Fertiges PDF-Layout direkt im Browser. Positionen bei Bedarf anpassen.</div>
+          <span class="step-badge badge-manual">~30 Sek.</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">📤</div>
+        <div class="step-body">
+          <div class="step-title">Angebot senden</div>
+          <div class="step-desc">Drucken als PDF · Per E-Mail · Per WhatsApp</div>
+          <span class="step-badge badge-auto">Fertig</span>
+        </div>
       </div>
     </div>
 
     <div class="metrics">
-      <div class="metric"><div class="metric-val">30 min</div><div class="metric-label">Bisheriger Zeitaufwand je Angebot</div></div>
-      <div class="metric"><div class="metric-val">2–3 min</div><div class="metric-label">Mit Craftspeople AI</div></div>
-      <div class="metric"><div class="metric-val">~93 %</div><div class="metric-label">Zeitersparnis pro Angebot</div></div>
-    </div>
-
-    <br>
-    <div class="chart-wrap">
-      <div class="mermaid">
-sequenceDiagram
-    actor HW as Handwerker
-    participant App as Craftspeople AI App
-    participant Claude as Claude API
-    participant Kunde as Kunde
-
-    HW->>App: Jobbeschreibung eingeben
-    Note over HW,App: "Bad sanieren: Wanne raus,\nDusche, neue Fliesen ~15m²"
-    App->>Claude: Prompt mit Job + Betriebsdaten
-    Claude-->>App: JSON mit Positionen & Preisen
-    App-->>HW: PDF-Vorschau anzeigen
-    HW->>App: ✓ Bestätigen (oder anpassen)
-    App->>Kunde: PDF per E-Mail / WhatsApp
-    Kunde-->>HW: Auftragsbestätigung
+      <div class="metric">
+        <div class="metric-val">35 min</div>
+        <div class="metric-label">Bisheriger Aufwand je Angebot</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">3 min</div>
+        <div class="metric-label">Mit Craftspeople AI</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">~93 %</div>
+        <div class="metric-label">Zeitersparnis pro Angebot</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">0</div>
+        <div class="metric-label">Konkurrenten mit AI-Angeboten (DE-Markt)</div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="divider"></div>
+
+  <!-- ═══════ B1 KOMMUNIKATION ═══════ -->
   <section id="kommunikation">
-    <h2>B1 – AI Kundenkommunikation</h2>
-    <p class="subtitle">Professionelle Antworten auf Kundenanfragen – in unter einer Minute</p>
-    <div class="chart-wrap">
-      <div class="mermaid">
-flowchart TD
-    A([📱 Kundenanfrage eingeht\nE-Mail · WhatsApp · Telefon-Notiz]) --> B
+    <h2><span class="tag">B1</span> Kundenkommunikation</h2>
+    <p class="section-sub">Professionelle Antworten auf Anfragen – unter 1 Minute</p>
 
-    B{Anfrage-Typ?}
-    B -- Neukunde / Angebot --> C[App öffnen\nAnfrage einfügen]
-    B -- Terminänderung --> C
-    B -- Beschwerde / Problem --> C
-    B -- Bewertung --> D{{"B3: Bewertungsantwort\n(Folge-Feature)"}}
-
-    C --> E[Tonalität wählen\nprofessionell · formell · locker]
-    E --> F[Claude API generiert Antwort\n~5 Sek.]
-    F --> G[Handwerker liest Entwurf\n~20 Sek.]
-
-    G --> H{Passt die Antwort?}
-    H -- Ja --> I[1-Klick: Kopieren]
-    H -- Kleine Änderung --> J[Manuell anpassen]
-    J --> I
-    H -- Komplett neu --> K[Andere Tonalität wählen]
-    K --> F
-
-    I --> L[In E-Mail / WhatsApp einfügen & senden]
-    L --> M([✅ Kunde antwortet innerhalb Stunden\nstatt Tagen])
-
-    style A fill:#eff6ff,stroke:#1d4ed8,color:#1e40af
-    style F fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style M fill:#dcfce7,stroke:#16a34a,color:#166534
-    style D fill:#fef3c7,stroke:#d97706,color:#92400e
+    <div class="flow">
+      <div class="step">
+        <div class="step-icon">📱</div>
+        <div class="step-body">
+          <div class="step-title">Kundenanfrage eingeht</div>
+          <div class="step-desc">E-Mail · WhatsApp · Telefonnotiz</div>
+          <span class="step-badge badge-manual">Eingehend</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">📋</div>
+        <div class="step-body">
+          <div class="step-title">Anfrage in App einfügen</div>
+          <div class="step-desc">Copy & Paste genügt. Tonalität wählen: professionell · formell · locker</div>
+          <span class="step-badge badge-manual">~15 Sek.</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">🤖</div>
+        <div class="step-body">
+          <div class="step-title">Claude AI entwirft Antwort</div>
+          <div class="step-desc">Geht auf Kernproblem ein, schlägt nächsten Schritt vor (Termin / Rückruf), max. 120 Wörter</div>
+          <span class="step-badge badge-ai">~5 Sek.</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">👁️</div>
+        <div class="step-body">
+          <div class="step-title">Entwurf lesen</div>
+          <div class="step-desc">Passt die Antwort? → Kopieren. Kleine Änderung nötig? → Direkt editieren. Komplett neu? → Andere Tonalität wählen.</div>
+          <span class="step-badge badge-manual">~20 Sek.</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">✉️</div>
+        <div class="step-body">
+          <div class="step-title">In E-Mail / WhatsApp einfügen & senden</div>
+          <div class="step-desc">1-Klick Kopieren direkt in die Zwischenablage</div>
+          <span class="step-badge badge-auto">Fertig</span>
+        </div>
       </div>
     </div>
 
-    <div class="metrics">
-      <div class="metric"><div class="metric-val">5–10 min</div><div class="metric-label">Bisheriger Aufwand je Antwort</div></div>
-      <div class="metric"><div class="metric-val">~1 min</div><div class="metric-label">Mit Craftspeople AI</div></div>
-      <div class="metric"><div class="metric-val">81 %</div><div class="metric-label">Handwerker antworten zu langsam\n(Kundenverlust-Risiko)</div></div>
+    <div class="branch">
+      <strong>Hinweis</strong>
+      Immer kurz drüberlesen vor dem Senden – die AI kennt die persönliche Beziehung zum Kunden nicht. Bei Stammkunden ggf. persönlichen Satz ergänzen.
     </div>
 
-    <br>
-    <div class="chart-wrap">
-      <div class="mermaid">
-flowchart LR
-    subgraph INPUT ["Eingabe"]
-        A1[Kundenanfrage-Text]
-        A2[Betriebsname & Kontext]
-        A3[Ton-Einstellung]
-    end
-
-    subgraph CLAUDE ["Claude API – Verarbeitung"]
-        B1[Kontext analysieren]
-        B1 --> B2[Kernproblem erkennen]
-        B2 --> B3[Lösung / nächsten Schritt formulieren]
-        B3 --> B4[Tonalität anwenden]
-        B4 --> B5[Antwort unter 120 Wörter]
-    end
-
-    subgraph OUTPUT ["Ausgabe"]
-        C1[Fertiger E-Mail-Text]
-        C2[1-Klick kopieren]
-    end
-
-    INPUT --> CLAUDE --> OUTPUT
-
-    style CLAUDE fill:#eff6ff,stroke:#1d4ed8
-    style B1 fill:#1d4ed8,color:#fff,stroke:#1e40af
-    style B5 fill:#1d4ed8,color:#fff,stroke:#1e40af
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-val">5–10 min</div>
+        <div class="metric-label">Bisheriger Aufwand je Antwort</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">~1 min</div>
+        <div class="metric-label">Mit Craftspeople AI</div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="divider"></div>
+
+  <!-- ═══════ C1/C2 DATEV ═══════ -->
   <section id="datev">
-    <h2>C1/C2 – Belegerfassung & DATEV Export</h2>
-    <p class="subtitle">Von der Papierquittung zum Steuerberater-fertigen Export</p>
-    <div class="chart-wrap">
-      <div class="mermaid">
-flowchart TD
-    A([📄 Belege anfallen\nKaufhäuser · Tankstellen · Lieferanten]) --> B
+    <h2><span class="tag">C1/C2</span> Belegerfassung & DATEV</h2>
+    <p class="section-sub">Vom Kassenbon zum Steuerberater-fertigen Export</p>
 
-    B{Format des Belegs?}
-    B -- Papierquittung --> C[Foto mit Smartphone]
-    B -- PDF per E-Mail --> D[Direkt hochladen / einfügen]
-    B -- Digitale Rechnung --> D
-
-    C --> E[OCR-Erkennung\nLieferant · Betrag · Datum]
-    D --> E
-
-    E --> F[AI kategorisiert automatisch\nMaterial · Fahrt · Büro · ...]
-    F --> G{Kategorie korrekt?}
-    G -- Ja --> H[✓ Beleg gespeichert]
-    G -- Nein --> I[1-Klick Korrektur]
-    I --> H
-
-    H --> J[(Belege-Sammlung\nMonat)]
-    J --> K{Monat abgeschlossen?}
-    K -- Nein --> A
-    K -- Ja --> L[DATEV CSV generieren\n1 Klick]
-
-    L --> M{Export-Ziel?}
-    M -- Einfach --> N[CSV per E-Mail\nan Steuerberater]
-    M -- Automatisch --> O[Direkt in DATEV\nUnternehmen online\nPhase 2+]
-
-    N --> P[Steuerberater importiert\nin DATEV Rechnungswesen]
-    O --> P
-
-    P --> Q([✅ Buchführung erledigt\nkein Zettelberg mehr])
-
-    style E fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style F fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style L fill:#1d4ed8,stroke:#1e40af,color:#fff
-    style O fill:#fef3c7,stroke:#d97706,color:#92400e
-    style Q fill:#dcfce7,stroke:#16a34a,color:#166534
+    <div class="flow">
+      <div class="step">
+        <div class="step-icon">🛒</div>
+        <div class="step-body">
+          <div class="step-title">Beleg anfällt</div>
+          <div class="step-desc">Papierquittung · PDF-Rechnung per E-Mail · Digitale Rechnung</div>
+          <span class="step-badge badge-manual">Eingehend</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">📸</div>
+        <div class="step-body">
+          <div class="step-title">Erfassen</div>
+          <div class="step-desc">Papier: Foto mit Smartphone. Digital: direkt einfügen.</div>
+          <span class="step-badge badge-manual">~10 Sek.</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">🤖</div>
+        <div class="step-body">
+          <div class="step-title">AI erkennt & kategorisiert</div>
+          <div class="step-desc">Liest Lieferant, Betrag, Datum. Ordnet automatisch zu: Material (3400) · Fahrtkosten (4670) · Büro (4930) · ...</div>
+          <span class="step-badge badge-ai">Automatisch</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">✅</div>
+        <div class="step-body">
+          <div class="step-title">Kurz bestätigen oder korrigieren</div>
+          <div class="step-desc">Kategorie falsch? 1-Klick Korrektur. Stimmt alles? Direkt speichern.</div>
+          <span class="step-badge badge-manual">~5 Sek.</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">📦</div>
+        <div class="step-body">
+          <div class="step-title">Belege sammeln sich über den Monat</div>
+          <div class="step-desc">Kein Zettelstapel mehr – alles digital in der App</div>
+          <span class="step-badge badge-auto">Laufend</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">💾</div>
+        <div class="step-body">
+          <div class="step-title">DATEV CSV exportieren</div>
+          <div class="step-desc">1-Klick am Monatsende. Erzeugt valides DATEV EXTF-Format mit allen Buchungssätzen.</div>
+          <span class="step-badge badge-ai">~5 Sek.</span>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="step-icon">📧</div>
+        <div class="step-body">
+          <div class="step-title">CSV an Steuerberater senden</div>
+          <div class="step-desc">Per E-Mail. Steuerberater importiert direkt in DATEV Rechnungswesen – kein Rückfragen mehr.</div>
+          <span class="step-badge badge-auto">Fertig</span>
+        </div>
       </div>
     </div>
 
-    <div class="metrics">
-      <div class="metric"><div class="metric-val">30 %</div><div class="metric-label">Handwerker führen Buchhaltung noch vollständig analog (ifh 2024)</div></div>
-      <div class="metric"><div class="metric-val">3–5 min</div><div class="metric-label">Bisheriger Aufwand je Beleg</div></div>
-      <div class="metric"><div class="metric-val">~15 Sek.</div><div class="metric-label">Mit Craftspeople AI (Foto + Auto-Kategorisierung)</div></div>
+    <div class="result">
+      <div class="result-label">Ergebnis</div>
+      <div class="result-text">Kein Zettelberg mehr. Buchhaltung läuft nebenbei – ein Foto je Beleg, einmal im Monat Export.</div>
     </div>
 
-    <br>
-    <div class="chart-wrap">
-      <div class="mermaid">
-flowchart LR
-    subgraph KONTO ["Automatische Kontenzuordnung"]
-        direction TB
-        K1["Material / Baustoffe → Konto 3400"]
-        K2["Werkzeuge → Konto 0480"]
-        K3["Fahrtkosten / Tanken → Konto 4670"]
-        K4["Bürobedarf → Konto 4930"]
-        K5["Telefon / Internet → Konto 4920"]
-        K6["Bewirtung → Konto 4650"]
-        K7["Sonstiges → Konto 4980"]
-    end
-
-    subgraph DATEV_FORMAT ["DATEV EXTF CSV Format"]
-        direction TB
-        D1["Zeile 1: Metadaten-Header (EXTF)"]
-        D2["Zeile 2: Spalten-Header"]
-        D3["Zeile 3+: Buchungssätze\nUmsatz · S/H · Konto · Datum · Text"]
-    end
-
-    KONTO --> DATEV_FORMAT
-    DATEV_FORMAT --> OUT([Steuerberater importiert\nin DATEV Rechnungswesen])
-
-    style KONTO fill:#eff6ff,stroke:#1d4ed8
-    style DATEV_FORMAT fill:#f0fdf4,stroke:#16a34a
-    style OUT fill:#dcfce7,stroke:#16a34a,color:#166534
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-val">3–5 min</div>
+        <div class="metric-label">Bisheriger Aufwand je Beleg (suchen, eintippen)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">~15 Sek.</div>
+        <div class="metric-label">Mit Craftspeople AI (Foto + Auto-Erkennung)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">30 %</div>
+        <div class="metric-label">Handwerker führen Buchhaltung noch vollständig analog (ifh 2024)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">Stufe 1</div>
+        <div class="metric-label">MVP: CSV-Export. Stufe 2: Direkt-API zu DATEV Unternehmen online</div>
       </div>
     </div>
   </section>
 
 </main>
-
-<footer style="text-align:center; padding:24px; color:#9ca3af; font-size:12px; border-top:1px solid #e5e7eb; margin-top:40px;">
-  Craftspeople AI – Prototyp | Powered by Claude API (Anthropic)
-</footer>
-
 </body>
 </html>
