@@ -2,50 +2,136 @@
 
 **Kontext:** Handwerksbetriebe (Sanitär, Maler, Elektriker, Fliesenleger)
 **Erfassungskanal:** Hausbesuch beim Kunden (mobil, Tablet/Smartphone)
-**Output:** Internes Kalkulationsblatt + Kundenangebot (PDF)
+**Output:** Internes Kalkulationsblatt + Kundenangebot (PDF, digital annehmbar)
 
 ---
 
-## 1. Informationsstruktur
+## Architekturprinzip: Drei Datenebenen
 
-### 1.1 Kundendaten
+Das System unterscheidet strikt zwischen Daten, die **einmalig** hinterlegt werden, und solchen, die **pro Auftrag** erfasst werden. Nur die dritte Ebene wird beim Hausbesuch abgefragt.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Ebene 1: BETRIEBSPROFIL                                │
+│  (einmalig pro Betrieb, im Back-Office konfiguriert)    │
+│  Gewerk, Stundensätze, Marge, Firmendaten, Logo ...     │
+├─────────────────────────────────────────────────────────┤
+│  Ebene 2: KUNDENDATENBANK                               │
+│  (einmalig pro Kunde, danach wiederverwendet)           │
+│  Name, Adresse, Kontakt, Kundenhistorie ...             │
+├─────────────────────────────────────────────────────────┤
+│  Ebene 3: AUFTRAGSDATEN                                 │
+│  (pro Angebot, Erfassung beim Hausbesuch)               │
+│  Maße, Beschreibung, Wünsche, Budget, Fotos ...         │
+└─────────────────────────────────────────────────────────┘
+```
+
+> **Ziel:** Beim Hausbesuch werden nur noch Ebene-3-Daten abgefragt. Alles andere ist bereits vorhanden oder wird automatisch aus dem Profil übernommen.
+
+---
+
+## 1. Betriebsprofil (Ebene 1)
+
+Wird **einmalig** vom Betrieb im Back-Office eingerichtet. Alle Einstellungen sind pro Betrieb individuell konfigurierbar. Mehrere Betriebe können das System parallel nutzen (Mandantenfähigkeit).
+
+### 1.1 Unternehmensdaten
+
+| Feld | Pflicht | Typ |
+|---|---|---|
+| Firmenname | Ja | Text |
+| Rechtsform (GmbH, GbR, Einzelunternehmen, ...) | Ja | Enum |
+| Adresse, PLZ, Ort | Ja | Text |
+| Telefon, E-Mail, Website | Ja | Text |
+| Firmenlogo | Nein | Bild (PNG/SVG) |
+| Steuernummer / USt-IdNr. | Ja | Text |
+| IBAN / Bankverbindung | Nein | Text |
+| Angebots-Gültigkeitsdauer (Tage) | Ja | Zahl (Standard: 30) |
+
+### 1.2 Gewerk-Konfiguration
+
+Ein Betrieb kann **ein oder mehrere Gewerke** aktivieren. Pro aktiviertem Gewerk werden eigene Einstellungen hinterlegt.
+
+| Feld | Pflicht | Typ |
+|---|---|---|
+| Aktive Gewerke | Ja | Mehrfachauswahl (Sanitär / Maler / Elektriker / Fliesenleger / Sonstiges) |
+| Standard-Gewerk (bei Angebotserstellung vorausgewählt) | Nein | Enum aus aktiven Gewerken |
+
+### 1.3 Stundensätze & Kalkulation (pro Gewerk, konfigurierbar)
+
+| Feld | Pflicht | Typ | Hinweis |
+|---|---|---|---|
+| Arbeitsstundensatz (€/h, netto) | Ja | Zahl | Wird nicht im Kundenangebot gezeigt |
+| Fahrkostenpauschale | Nein | Zahl (€ pauschal oder €/km) | |
+| Materialaufschlag (%) | Nein | Zahl | Vorbereitet, aktuell manuell |
+| Standard-Gewinnmarge (%) | Nein | Zahl | Pro Betrieb individuell |
+| Mindestauftragswert (€) | Nein | Zahl | |
+| Lieferantenkatalog verknüpft | Nein | Bool | Vorbereitet für spätere Integration |
+
+> **Hinweis Lieferantenkatalog:** Die Datenstruktur ist vorbereitet. Bis zur Kataloganbindung werden Materialkosten manuell pro Angebot eingegeben oder pauschal geschätzt.
+
+### 1.4 Angebotsvorlagen & Texte
+
+| Feld | Pflicht | Typ |
+|---|---|---|
+| Angebots-Einleitungstext | Nein | Langer Text |
+| Angebots-Schlusstext / AGB-Hinweis | Nein | Langer Text |
+| Zahlungsbedingungen | Nein | Text (z.B. "14 Tage netto") |
+| Vorlagen für häufige Leistungspositionen | Nein | Liste von Textbausteinen |
+
+### 1.5 Benutzer & Zugriffsrechte
+
+| Feld | Pflicht | Typ |
+|---|---|---|
+| Benutzer (Name, E-Mail, Rolle) | Ja (min. 1) | Liste |
+| Rolle | Ja | Enum: Admin / Monteur / Büro |
+| Monteur darf Angebote erstellen? | Ja | Bool (pro Rolle) |
+| Monteur sieht Kalkulation / Marge? | Ja | Bool (pro Rolle) |
+
+---
+
+## 2. Kundendatenbank (Ebene 2)
+
+Wird **einmalig pro Kunde** angelegt und bei jedem Folgeauftrag wiederverwendet. Beim Hausbesuch reicht eine Suche nach Name oder Telefonnummer – alle Felder werden vorausgefüllt.
 
 | Feld | Pflicht | Typ | Erfassung |
 |---|---|---|---|
-| Vorname, Nachname | Ja | Text | Eingabe |
-| Straße, Hausnummer, PLZ, Ort | Ja | Text / Autovervollständigung | Eingabe |
-| Telefonnummer | Ja | Tel | Eingabe |
-| E-Mail-Adresse | Nein | E-Mail | Eingabe |
-| Ansprechpartner (bei Gewerbe) | Nein | Text | Eingabe |
-| Firmenname (bei Gewerbe) | Nein | Text | Eingabe |
+| Vorname, Nachname | Ja | Text | Eingabe (einmalig) |
+| Straße, Hausnummer, PLZ, Ort | Ja | Text / Autovervollständigung | Eingabe (einmalig) |
+| Telefonnummer | Ja | Tel | Eingabe (einmalig) |
+| E-Mail-Adresse | Nein | E-Mail | Eingabe (einmalig) |
+| Ansprechpartner (bei Gewerbe) | Nein | Text | Eingabe (einmalig) |
+| Firmenname (bei Gewerbe) | Nein | Text | Eingabe (einmalig) |
 | Rechnungsadresse abweichend? | Nein | Bool + Felder | Checkbox + Eingabe |
+| Notizen zum Kunden | Nein | Text | Freitext |
+| Auftragshistorie | – | Automatisch | Systemseitig gepflegt |
 
 ---
 
-### 1.2 Auftragsgrunddaten
+## 3. Auftragsdaten (Ebene 3) – Erfassung beim Hausbesuch
+
+Diese Daten werden **pro Angebot** neu erfasst. Das sind die einzigen Informationen, die beim Hausbesuch aktiv abgefragt werden.
+
+### 3.1 Auftragsgrunddaten
 
 | Feld | Pflicht | Typ | Erfassung |
 |---|---|---|---|
-| Gewerk | Ja | Enum | Auswahl (Sanitär / Maler / Elektriker / Fliesenleger / Sonstiges) |
-| Auftragsart | Ja | Enum | Auswahl (Neubau / Sanierung / Reparatur / Wartung / Erweiterung) |
+| Kunde | Ja | Suche / Neu | Bestandskunde suchen oder neu anlegen |
+| Gewerk | Ja | Enum | Vorausgewählt aus Betriebsprofil, änderbar |
+| Auftragsart | Ja | Enum | Neubau / Sanierung / Reparatur / Wartung / Erweiterung |
 | Kurzbezeichnung des Auftrags | Ja | Text | Freitext, max. 120 Zeichen |
-| Ausführungsadresse (= Kundenadresse?) | Ja | Bool + Felder | Checkbox "gleich wie Kundenadresse" oder separate Eingabe |
-| Raum / Bereich | Nein | Text | Freitext (z.B. "Bad EG", "Wohnzimmer") |
-| Detaillierte Leistungsbeschreibung | Ja | Langer Text | Freitext / Diktat |
-| Fotos der Situation vor Ort | Nein* | Bild(er) | Kamera-Upload (min. empfohlen: 2 Fotos) |
+| Ausführungsadresse | Ja | Bool + Felder | Checkbox "gleich wie Kundenadresse" oder separat |
+| Raum / Bereich | Nein | Text | z.B. "Bad EG", "Wohnzimmer" |
+| Leistungsbeschreibung | Ja | Langer Text | Freitext / Diktat |
+| Fotos der Situation vor Ort | Nein* | Bild(er) | Kamera direkt im Formular |
 
-> *Fotos sind technisch optional, aber für Kalkulation und Dokumentation dringend empfohlen.
+> *Fotos sind technisch optional, für Dokumentation und Streitvermeidung aber dringend empfohlen.
 
----
-
-### 1.3 Maße & technische Details (gewerkeabhängig)
-
-Das Formular zeigt jeweils nur die relevanten Felder basierend auf dem gewählten Gewerk.
+### 3.2 Maße & technische Details (gewerkeabhängig, dynamisches Formular)
 
 #### Sanitär
 | Feld | Pflicht | Typ |
 |---|---|---|
-| Anzahl Sanitärobjekte (WC, Waschbecken, Dusche, Wanne, ...) | Ja | Zähler je Typ |
+| Anzahl Sanitärobjekte (WC, Waschbecken, Dusche, Wanne ...) | Ja | Zähler je Typ |
 | Rohrleitungsart (Kalt-, Warmwasser, Abwasser) | Ja | Mehrfachauswahl |
 | Geschätzte Rohrleitungslänge (m) | Ja | Zahl |
 | Unterputz / Aufputz | Ja | Enum |
@@ -82,128 +168,119 @@ Das Formular zeigt jeweils nur die relevanten Felder basierend auf dem gewählte
 | Wandfliesen (m²) | Nein | Zahl |
 | Bodenfliesen (m²) | Nein | Zahl |
 | Fliesenformat (cm × cm) | Ja | Text / Auswahl |
-| Fliesenmaterial (Keramik, Feinsteinzeug, Naturstein, ...) | Ja | Auswahl |
+| Fliesenmaterial (Keramik, Feinsteinzeug, Naturstein ...) | Ja | Auswahl |
 | Alten Belag entfernen? | Ja | Bool |
 | Estrich / Abdichtung erforderlich? | Nein | Bool |
-| Verlegemuster (Standard, Diagonal, Fischgrät, ...) | Nein | Auswahl |
+| Verlegemuster (Standard, Diagonal, Fischgrät ...) | Nein | Auswahl |
 | Fliesenschnitte aufwändig? (viele Ecken, Rundungen) | Nein | Bool |
 | Fugenmaterial / Fugenfarbe | Nein | Auswahl |
 
----
-
-### 1.4 Kundenwünsche & Qualitätsniveau
+### 3.3 Kundenwünsche & Qualitätsniveau
 
 | Feld | Pflicht | Typ | Erfassung |
 |---|---|---|---|
-| Qualitätsniveau | Ja | Enum | Auswahl: Basis / Standard / Premium |
+| Qualitätsniveau | Ja | Enum | Basis / Standard / Premium |
 | Markenpräferenz / Material-Wunsch | Nein | Text | Freitext |
 | Konkrete Produkt-/Modellwünsche | Nein | Text | Freitext |
-| Besondere Anforderungen (Barrierefreiheit, Allergie, ...) | Nein | Text | Freitext |
+| Besondere Anforderungen (Barrierefreiheit ...) | Nein | Text | Freitext |
 | Hinweise zur Zugänglichkeit / Bausituation | Nein | Text | Freitext |
 
----
-
-### 1.5 Budget & Zeitrahmen
+### 3.4 Budget & Zeitrahmen
 
 | Feld | Pflicht | Typ | Erfassung |
 |---|---|---|---|
-| Budgetrahmen des Kunden (€) | Nein | Zahl (Bereich: von – bis) | Eingabe oder Schieberegler |
+| Budgetrahmen des Kunden (€) | Nein | Zahl (von – bis) | Eingabe oder Schieberegler |
 | Budgetrahmen ist verbindlich? | Nein | Bool | Checkbox |
 | Gewünschter Ausführungsbeginn | Nein | Datum | Datumsauswahl |
 | Gewünschte Fertigstellung bis | Nein | Datum | Datumsauswahl |
 | Terminflexibilität vorhanden? | Nein | Bool | Checkbox |
-| Besichtigungstermin / Aufmaßtermin erforderlich? | Nein | Bool | Checkbox |
 
 ---
 
-## 2. Übersicht: Pflichtfelder
+## 4. Pflichtfelder beim Hausbesuch (Minimalanforderung für Angebotserstellung)
 
-Folgende Felder sind **zwingend erforderlich**, um ein Angebot zu erzeugen:
+1. Kunde (Bestandskunde oder neu: Name + Adresse + Telefon)
+2. Auftragsart
+3. Kurzbezeichnung des Auftrags
+4. Ausführungsadresse
+5. Leistungsbeschreibung
+6. Mindestens **ein gewerke­spezifisches Maßfeld**
+7. Qualitätsniveau
 
-1. Name + Adresse des Kunden
-2. Telefonnummer
-3. Gewerk
-4. Auftragsart
-5. Kurzbezeichnung des Auftrags
-6. Ausführungsadresse
-7. Leistungsbeschreibung
-8. Mindestens **ein gewerke­spezifisches Maßfeld** (z.B. m² oder Anzahl Objekte)
-9. Qualitätsniveau
+> Gewerk und Firmendaten kommen automatisch aus dem Betriebsprofil – kein erneutes Abfragen.
 
 ---
 
-## 3. Digitale Erfassung beim Hausbesuch
-
-### 3.1 Gerät & Modus
-- **Gerät:** Tablet (bevorzugt) oder Smartphone
-- **Modus:** Progressive Web App (PWA) oder native App
-- **Offline-Fähigkeit:** Ja – Daten werden lokal gespeichert und synchronisiert, sobald Verbindung besteht
-
-### 3.2 Erfassungsreihenfolge (Wizard / Schritt-für-Schritt)
+## 5. Erfassungsablauf beim Hausbesuch (Wizard)
 
 ```
-Schritt 1: Kundendaten
-   → Autovervollständigung via Adress-API (z.B. Google Places)
-   → Bestandskunde? → vorausfüllen aus Kundendatenbank
+Schritt 1: Kunde
+   → Bestandskunde suchen (Name / Tel) → Daten vorausfüllen
+   → Oder: Neukunde anlegen
 
-Schritt 2: Auftragsgrundlage
-   → Gewerk wählen → passendes Unterformular erscheint dynamisch
+Schritt 2: Auftrag
+   → Auftragsart, Kurzbezeichnung, Ausführungsadresse
+   → Gewerk (aus Profil vorausgewählt, änderbar)
 
-Schritt 3: Maße & technische Details
-   → Gewerke­spezifisches Formular
-   → Fotos aufnehmen (Kamera direkt im Formular)
-   → Spracheingabe für Beschreibungsfelder (optional)
+Schritt 3: Maße & Technisches
+   → Dynamisches Formular je Gewerk
+   → Fotos aufnehmen
+   → Spracheingabe für Beschreibung
 
-Schritt 4: Kundenwünsche
-   → Qualitätsniveau, Materialwünsche, Sonderwünsche
+Schritt 4: Wünsche & Budget
+   → Qualitätsniveau, Materialwünsche
+   → Budget & Zeitrahmen (optional)
 
-Schritt 5: Budget & Zeitrahmen
-   → Optional, aber empfohlen
-
-Schritt 6: Zusammenfassung & Bestätigung
-   → Alle Eingaben anzeigen
-   → Digitale Unterschrift des Kunden (optional)
-   → Speichern / An Büro senden
+Schritt 5: Zusammenfassung
+   → Alle Eingaben prüfen
+   → Speichern & synchronisieren
 ```
 
-### 3.3 Unterstützende Eingabehilfen
+### Eingabehilfen
 
 | Feature | Beschreibung |
 |---|---|
-| Kamera-Integration | Fotos direkt im Formular aufnehmen und speichern |
-| Spracheingabe | Beschreibungsfelder per Diktat ausfüllen |
-| Adress-Autovervollständigung | Reduziert Tippfehler bei Adressen |
-| Bestandskunden-Suche | Kundendaten aus vorherigen Aufträgen laden |
-| Vorlagen / Schnellauswahl | Häufige Auftragstypen als vorbefüllte Vorlagen |
-| Offline-Modus | Vollständige Erfassung auch ohne Internetverbindung |
-| Digitale Unterschrift | Kundenunterschrift auf dem Tablet |
+| Kamera-Integration | Fotos direkt im Formular |
+| Spracheingabe | Freitextfelder per Diktat |
+| Adress-Autovervollständigung | Fehlerreduktion bei Neueingabe |
+| Bestandskunden-Suche | Schnellzugriff auf vorhandene Kundendaten |
+| Vorlagen | Häufige Leistungspositionen als Textbausteine |
+| Offline-Modus | Vollständige Erfassung ohne Internetverbindung |
 
 ---
 
-## 4. Datenfluss nach der Erfassung
+## 6. Datenfluss
 
 ```
-Vor-Ort-Erfassung (Tablet)
-        ↓
-Lokale Zwischenspeicherung
-        ↓ (bei Netz)
-Synchronisation mit Backend
-        ↓
-Automatische Kalkulation
-        ↓
-    ┌───┴───┐
-    ↓       ↓
-Interne    Kunden-
-Kalkul.    Angebot
-(intern)   (PDF)
+Betriebsprofil          Kundendatenbank
+(Stundensätze,          (Name, Adresse,
+ Marge, Gewerk ...)      Kontakt ...)
+       │                       │
+       └──────────┬────────────┘
+                  ↓
+         Auftragsdaten
+         (Hausbesuch)
+                  ↓
+         Lokale Speicherung
+                  ↓ (bei Netz)
+         Synchronisation Backend
+                  ↓
+         Automatische Kalkulation
+                  ↓
+         ┌────────┴────────┐
+         ↓                 ↓
+    Interne            Kundenangebot
+    Kalkulation        (PDF per E-Mail)
+    (Stundensätze,          ↓
+     Marge sichtbar)   Digitale Annahme
+                       durch Kunden
 ```
 
 ---
 
-## 5. Offene Fragen / Klärungsbedarf
+## 7. Offene Fragen / nächste Schritte
 
-- [ ] Sollen Materialkosten direkt aus einem Lieferantenkatalog/-preisliste gezogen werden?
-- [ ] Welche Gewinnmarge / Stundensatzstruktur liegt der Kalkulation zugrunde?
-- [ ] Gibt es mehrere Mitarbeiter, die Angebote erstellen (Mehrbenutzer)?
-- [ ] Soll der Kunde das Angebot digital per E-Mail erhalten und digital annehmen können?
-- [ ] Bestehende Software (z.B. Buchhaltung, CRM) an die das Tool angebunden werden soll?
+- [ ] Kalkulationslogik: Wie werden Arbeitsstunden aus den Maßen geschätzt? (Richtwerte pro Gewerk hinterlegen)
+- [ ] Mehrbenutzer: Welche Rollen sollen die Kalkulation / Marge sehen dürfen?
+- [ ] Anbindung Buchhaltung / CRM vorhanden oder geplant?
+- [ ] Digitale Angebotsannahme: E-Mail mit Link oder direkt auf Tablet unterschreiben?
